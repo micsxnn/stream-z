@@ -1,82 +1,120 @@
 #!/usr/bin/env python3
-"""Espelho-z: empurra uma mensagem para o feed ao vivo (gist).
+"""mirror_push.py — envia uma mensagem para o espelho ao vivo (stream-z).
 
-POLÍTICA (acordo com o usuário, revisada em 2026-11-01):
-  - TODA fala do agente vai para o espelho VERBATIM e ANTES de aparecer no
-    chat — incluindo as narrativas intermediárias entre tool calls, não só
-    a mensagem final. Cada parágrafo de narrativa: push primeiro, depois o
-    mesmo texto no chat.
-      python3 mirror_push.py --kind agent --text "<fala exata>"
-  - Mensagens do USUÁRIO não vão para o site (privacidade), a não ser que ele peça.
-  - kinds: user | agent | status | tool | fim
-  - Ao TERMINAR cada turno, marque o fim da transmissão no site (o marcador
-    «fim» aparece no lugar do antigo footer, separando um turno do outro):
-      python3 mirror_push.py --kind fim --text "fim"
+O espelho é um feed JSON hospedado num gist SECRETO do GitHub:
+    feed.json = {"updated": "<iso>", "items": [{"t": "<iso>", "k": "<kind>", "x": "<texto>"}]}
+
+POLÍTICA DE OPERAÇÃO (regra de ouro do espelho):
+  1. TODO texto que o agente falar no chat vai PRIMEIRO para o espelho, verbatim,
+     e DEPOIS aparece no chat — incluindo narrativas intermediárias entre tool calls.
+  2. Ao TERMINAR cada turno:  --kind fim --text "fim"   (desenha o marcador «F I M»).
+  3. Mensagens do USUÁRIO NUNCA vão para o espelho (privacidade).
 
 Uso:
-  python3 mirror_push.py --kind agent --text "texto da mensagem"
-  python3 mirror_push.py --kind status --file /tmp/trecho.md
+    export GH_TOKEN=ghp_...                # token GitHub com escopo gist
+    python3 mirror_push.py --kind agent --text "fala exata do agente"
+    python3 mirror_push.py --kind fim --text "fim"
+
+Identificação do gist (nesta ordem):
+    --gist <id>   |   variável de ambiente GIST_ID   |   .secrets/mirror.json
+
+kinds: user | agent | status | tool | fim
 """
 import argparse
 import datetime
 import json
 import os
 import sys
+import time
+import urllib.error
 import urllib.request
 
-CONF = "/home/z/my-project/.secrets/mirror.json"
-MAX_ITEMS = 400
-MAX_BYTES = 400_000
+API_URL = "https://api.github.com/gists/{gid}"
+FEED_FILE = "feed.json"
+MAX_ITEMS = 400          # máximo de itens no feed
+MAX_BYTES = 400_000      # teto aproximado do payload do gist
+RETRIES = 3
 
 
-def api(url, method="GET", token=None, data=None):
-    req = urllib.request.Request(url, method=method)
+def now_iso() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+
+
+def resolve_gist(explicit):
+    if explicit:
+        return explicit
+    env = os.environ.get("GIST_ID")
+    if env:
+        return env
+    for path in ("/home/z/my-project/.secrets/mirror.json",
+                 os.path.expanduser("~/.secrets/mirror.json")):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                return json.load(fh)["gist_id"]
+        except (OSError, KeyError, ValueError):
+            continue
+    sys.exit("erro: gist não informado (use --gist, GIST_ID ou .secrets/mirror.json)")
+
+
+def http_json(url, token, payload=None):
+    data = json.dumps(payload).encode("utf-8") if payload is not None else None
+    req = urllib.request.Request(url, data=data, method="PATCH" if data else "GET")
+    req.add_header("Authorization", "Bearer " + token)
     req.add_header("Accept", "application/vnd.github+json")
-    req.add_header("User-Agent", "z-mirror")
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
-    body = None
-    if data is not None:
-        body = json.dumps(data).encode()
+    if data:
         req.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(req, body) as r:
-        return json.load(r)
+    last_err = None
+    for attempt in range(1, RETRIES + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            if exc.code in (409, 500, 502, 503, 504) and attempt < RETRIES:
+                time.sleep(1.5 * attempt)
+                continue
+            sys.exit("erro HTTP {} na API do GitHub: {}".format(exc.code, body[:300]))
+        except urllib.error.URLError as exc:
+            last_err = exc
+            if attempt < RETRIES:
+                time.sleep(1.5 * attempt)
+                continue
+            sys.exit("erro de rede: {}".format(last_err))
 
 
-def main():
-    ap = argparse.ArgumentParser()
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Push de mensagem para o espelho stream-z")
     ap.add_argument("--kind", default="agent",
                     choices=["user", "agent", "status", "tool", "fim"])
-    ap.add_argument("--text")
-    ap.add_argument("--file")
-    a = ap.parse_args()
+    ap.add_argument("--text", required=True, help="texto verbatim a transmitir")
+    ap.add_argument("--gist", help="id do gist (senão: GIST_ID ou .secrets/mirror.json)")
+    args = ap.parse_args()
 
-    if not (a.text or a.file):
-        sys.exit("informe --text ou --file")
-    text = a.text if a.text else open(a.file, encoding="utf-8").read()
-    text = text.strip()
-    if not text:
-        sys.exit("texto vazio")
+    token = os.environ.get("GH_TOKEN")
+    if not token:
+        sys.exit("erro: GH_TOKEN não definido no ambiente")
+    gid = resolve_gist(args.gist)
 
-    token = os.environ["GH_TOKEN"]
-    conf = json.load(open(CONF))
-    gid = conf["gist_id"]
+    gist = http_json(API_URL.format(gid=gid), token)
+    raw = (gist.get("files") or {}).get(FEED_FILE, {}).get("content") or "{}"
+    try:
+        feed = json.loads(raw)
+    except ValueError:
+        feed = {"updated": "", "items": []}
+    items = feed.get("items") or []
+    items.append({"t": now_iso(), "k": args.kind, "x": args.text})
+    items = items[-MAX_ITEMS:]
+    feed = {"updated": now_iso(), "items": items}
+    content = json.dumps(feed, ensure_ascii=False)
+    while len(content.encode("utf-8")) > MAX_BYTES and len(items) > 1:
+        items = items[1:]
+        feed["items"] = items
+        content = json.dumps(feed, ensure_ascii=False)
 
-    gist = api(f"https://api.github.com/gists/{gid}", "GET", token)
-    raw = gist["files"]["feed.json"]["content"]
-    feed = json.loads(raw)
-
-    now = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
-    item = {"t": now, "k": a.kind, "x": text}
-    feed["items"].append(item)
-    feed["items"] = feed["items"][-MAX_ITEMS:]
-    feed["updated"] = now
-    while len(json.dumps(feed).encode()) > MAX_BYTES and len(feed["items"]) > 1:
-        feed["items"] = feed["items"][1:]
-
-    api(f"https://api.github.com/gists/{gid}", "PATCH", token,
-        {"files": {"feed.json": {"content": json.dumps(feed, ensure_ascii=False)}}})
-    print(f"push ok :: {len(feed['items'])} itens no feed :: ultimo {a.kind} @ {now}")
+    http_json(API_URL.format(gid=gid), token,
+              {"files": {FEED_FILE: {"content": content}}})
+    print("ok: +1 item ({}); feed com {} itens, {} bytes".format(
+        args.kind, len(items), len(content.encode("utf-8"))))
 
 
 if __name__ == "__main__":
