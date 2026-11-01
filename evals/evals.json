@@ -1,0 +1,23 @@
+{
+  "skill_name": "stream-z",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Liga o stream-z aí, quero acompanhar você trabalhando em tempo real. Pode ser na Vercel mesmo.",
+      "expected_output": "Caminho A: orienta token Vercel (Full Account) + token GitHub (gist), cria gist secreto, copia assets da skill, 2 deploys com env GH_TOKEN, acende o stream-z e inicia a política push-antes-do-chat com «fim» no fim do turno.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "monta o stream-z no preview da plataforma pfv, odeio link gigante",
+      "expected_output": "Caminho B: Next.js com app/api/feed/route.ts + public/mirror.html, GH_TOKEN/GIST_ID no ambiente, encurta o preview com is.gd via curl e entrega o link curto ao usuário.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "o stream-z parou de atualizar no site, o que houve?",
+      "expected_output": "Diagnóstico pela Regra de Ouro/Troubleshooting: 401 no push (token girou), viewer apontando gist.githubusercontent.com em vez do proxy /api/feed, ou agente que parou de transmitir; aplicar correção e re-push.",
+      "files": []
+    }
+  ]
+}

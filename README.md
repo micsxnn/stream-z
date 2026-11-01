@@ -2,6 +2,18 @@
 
 stream-z — site independente da plataforma de chat: um site na Vercel que recebe **toda fala do agente antes de ela aparecer no chat**, para acompanhar em tempo real mesmo quando a plataforma travar.
 
+> **Este repositório também É a skill do stream-z** (padrão Agent Skills: `SKILL.md` na raiz) — clone e use em qualquer agente. Instalação abaixo.
+
+## Instalar como skill
+
+```bash
+git clone https://github.com/micsxnn/stream-z <pasta-de-skills>/stream-z
+```
+
+- A mesma pasta vale para as duas coisas: **skill** (`SKILL.md`, `assets/`, `reference/`, `scripts/`, `evals/`) e **código do site em produção** (`index.html` + `api/` → Vercel).
+- Atualização: `git -C <pasta-de-skills>/stream-z pull`.
+- Nos exemplos da skill, `<caminho-da-skill>` é a pasta do clone (ex.: `/home/z/my-project/skills/stream-z`).
+
 ## Como funciona
 
 ```
@@ -33,6 +45,10 @@ kinds: `user` | `agent` | `status` | `tool` | `fim` — o `fim` é o marcador de
 | --- | --- |
 | `index.html` | Viewer: timeline, agrupamento por emissor (símbolo só no primeiro parágrafo do bloco, continuação ligada por fio vertical), chip ao vivo/reconectando/sem sinal, botão "ver novas mensagens", skeleton que imita as mensagens |
 | `api/feed.js` | Proxy serverless de leitura autenticada do gist |
+| `SKILL.md` | A skill: regras de operação, instalação e troubleshooting |
+| `assets/` | Templates do viewer e do proxy para montagens novas |
+| `reference/` | Guias de configuração: caminho A (Vercel) e caminho B (preview + is.gd) |
+| `evals/` | Casos de teste da skill (evals.json) |
 | `scripts/create_gist.py` | Cria o gist secreto e grava `.secrets/mirror.json` |
 | `scripts/mirror_push.py` | Empurra uma mensagem para o feed (`--kind` + `--text`/`--file`) |
 | `scripts/insert_fim_history.py` | One-shot: insere «fim» retroativo nas fronteiras históricas de turno |
