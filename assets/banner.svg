@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="280" viewBox="0 0 1000 280" role="img" aria-label="stream-z — transmissão ao vivo das falas do agente">
+  <title>stream-z — transmissão ao vivo das falas do agente</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0f1e"/>
+      <stop offset="0.55" stop-color="#0d1428"/>
+      <stop offset="1" stop-color="#111a36"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="0.5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f0abfc"/>
+      <animateTransform attributeName="gradientTransform" type="translate"
+        values="0 0; 90 0; 0 0" dur="7s" repeatCount="indefinite"/>
+    </linearGradient>
+    <linearGradient id="streamGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.0"/>
+      <stop offset="0.25" stop-color="#38bdf8" stop-opacity="0.9"/>
+      <stop offset="0.75" stop-color="#a78bfa" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#f0abfc" stop-opacity="0.0"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#f0abfc"/>
+    </linearGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="1.4" fill="#3b4a6b"/>
+    </pattern>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6"/>
+    </filter>
+    <clipPath id="frame"><rect x="0" y="0" width="1000" height="280" rx="18"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="1000" height="280" fill="url(#bg)"/>
+    <rect width="1000" height="280" fill="url(#dots)" opacity="0.35"/>
+
+    <!-- fios do stream: fluxo contínuo da esquerda p/ direita -->
+    <g fill="none" stroke="url(#streamGrad)">
+      <path d="M -20 196 C 140 176, 260 216, 420 198 S 700 178, 1020 200" stroke-width="3.4" stroke-dasharray="4 26" opacity="0.85">
+        <animate attributeName="stroke-dashoffset" from="0" to="-300" dur="9s" repeatCount="indefinite"/>
+      </path>
+      <path d="M -20 214 C 170 232, 330 190, 500 212 S 760 234, 1020 208" stroke-width="2.4" stroke-dasharray="3 22" opacity="0.6">
+        <animate attributeName="stroke-dashoffset" from="0" to="-300" dur="7s" repeatCount="indefinite"/>
+      </path>
+      <path d="M -20 232 C 200 218, 420 244, 640 226 S 880 214, 1020 236" stroke-width="1.6" stroke-dasharray="2 18" opacity="0.4">
+        <animate attributeName="stroke-dashoffset" from="0" to="-260" dur="6s" repeatCount="indefinite"/>
+      </path>
+    </g>
+
+    <!-- aura atrás do título -->
+    <ellipse cx="300" cy="128" rx="250" ry="80" fill="#a78bfa" opacity="0.10" filter="url(#soft)">
+      <animate attributeName="opacity" values="0.07;0.16;0.07" dur="6s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- chip: agent skill -->
+    <g>
+      <rect x="64" y="52" width="118" height="30" rx="15" fill="none" stroke="#33415f" stroke-width="1.4"/>
+      <text x="123" y="72" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+            font-size="13" letter-spacing="3" fill="#7dd3fc">AGENT SKILL</text>
+    </g>
+
+    <!-- chip: ao vivo -->
+    <g>
+      <rect x="826" y="52" width="110" height="30" rx="15" fill="#0b1220" stroke="#33415f" stroke-width="1.4"/>
+      <circle cx="848" cy="67" r="5" fill="#f43f5e">
+        <animate attributeName="opacity" values="1;0.25;1" dur="1.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="848" cy="67" r="5" fill="none" stroke="#f43f5e" stroke-width="1.6">
+        <animate attributeName="r" values="5;11" dur="1.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0" dur="1.6s" repeatCount="indefinite"/>
+      </circle>
+      <text x="905" y="72" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+            font-size="14" letter-spacing="2.5" fill="#e2e8f0">AO VIVO</text>
+    </g>
+
+    <!-- wordmark -->
+    <text x="60" y="158" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+          font-size="86" font-weight="700" letter-spacing="-2"
+          fill="url(#titleGrad)">stream-z</text>
+    <rect x="66" y="176" width="252" height="4" rx="2" fill="url(#titleGrad)" opacity="0.9"/>
+
+    <!-- tagline -->
+    <text x="64" y="216" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+          font-size="21" fill="#94a3b8">transmissão ao vivo das falas do agente — antes do chat</text>
+
+    <!-- equalizador -->
+    <g fill="url(#barGrad)" opacity="0.85">
+      <rect x="716" y="216" width="8" height="34" rx="3">
+        <animate attributeName="height" values="34;12;34;22;34" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="216;238;216;228;216" dur="1.8s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="732" y="204" width="8" height="46" rx="3">
+        <animate attributeName="height" values="46;20;46;30;46" dur="1.5s" begin="0.15s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="204;230;204;220;204" dur="1.5s" begin="0.15s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="748" y="224" width="8" height="26" rx="3">
+        <animate attributeName="height" values="26;40;26;14;26" dur="1.9s" begin="0.3s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="224;210;224;236;224" dur="1.9s" begin="0.3s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="764" y="210" width="8" height="40" rx="3">
+        <animate attributeName="height" values="40;16;40;26;40" dur="1.4s" begin="0.45s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="210;234;210;224;210" dur="1.4s" begin="0.45s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="780" y="226" width="8" height="24" rx="3">
+        <animate attributeName="height" values="24;38;24;12;24" dur="1.7s" begin="0.6s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="226;212;226;238;226" dur="1.7s" begin="0.6s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="796" y="200" width="8" height="50" rx="3">
+        <animate attributeName="height" values="50;24;50;34;50" dur="1.6s" begin="0.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="200;226;200;216;200" dur="1.6s" begin="0.2s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="812" y="220" width="8" height="30" rx="3">
+        <animate attributeName="height" values="30;14;30;42;30" dur="1.8s" begin="0.35s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="220;236;220;208;220" dur="1.8s" begin="0.35s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="828" y="208" width="8" height="42" rx="3">
+        <animate attributeName="height" values="42;18;42;28;42" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="208;232;208;222;208" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="844" y="222" width="8" height="28" rx="3">
+        <animate attributeName="height" values="28;44;28;16;28" dur="1.9s" begin="0.1s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="222;206;222;234;222" dur="1.9s" begin="0.1s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="860" y="204" width="8" height="46" rx="3">
+        <animate attributeName="height" values="46;22;46;32;46" dur="1.45s" begin="0.25s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="204;228;204;218;204" dur="1.45s" begin="0.25s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="876" y="218" width="8" height="32" rx="3">
+        <animate attributeName="height" values="32;12;32;44;32" dur="1.75s" begin="0.4s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="218;238;218;206;218" dur="1.75s" begin="0.4s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="892" y="206" width="8" height="44" rx="3">
+        <animate attributeName="height" values="44;20;44;30;44" dur="1.55s" begin="0.55s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="206;230;206;220;206" dur="1.55s" begin="0.55s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="908" y="224" width="8" height="26" rx="3">
+        <animate attributeName="height" values="26;40;26;14;26" dur="1.85s" begin="0.05s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="224;210;224;236;224" dur="1.85s" begin="0.05s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="924" y="212" width="8" height="38" rx="3">
+        <animate attributeName="height" values="38;16;38;26;38" dur="1.5s" begin="0.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="212;234;212;224;212" dur="1.5s" begin="0.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+  </g>
+</svg>

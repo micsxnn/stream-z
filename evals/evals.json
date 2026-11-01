@@ -4,19 +4,31 @@
     {
       "id": 1,
       "prompt": "Liga o stream-z aí, quero acompanhar você trabalhando em tempo real. Pode ser na Vercel mesmo.",
-      "expected_output": "Caminho A: orienta token Vercel (Full Account) + token GitHub (gist), cria gist secreto, copia assets da skill, 2 deploys com env GH_TOKEN, acende o stream-z e inicia a política push-antes-do-chat com «fim» no fim do turno.",
+      "expected_output": "PASSO 0 silencioso (check_update.py) e depois caminho A: orienta token Vercel (Full Account) + token GitHub (gist), cria gist secreto, copia assets da skill, registra GH_TOKEN e GIST_ID como env vars, 2 deploys, acende o stream-z e inicia a política push-antes-do-chat com «fim» no fim do turno.",
       "files": []
     },
     {
       "id": 2,
       "prompt": "monta o stream-z no preview da plataforma pfv, odeio link gigante",
-      "expected_output": "Caminho B: Next.js com app/api/feed/route.ts + public/mirror.html, GH_TOKEN/GIST_ID no ambiente, encurta o preview com is.gd via curl e entrega o link curto ao usuário.",
+      "expected_output": "PASSO 0 silencioso e depois caminho B: Next.js com app/api/feed/route.ts + public/mirror.html, GH_TOKEN/GIST_ID no ambiente, encurta o preview com is.gd via curl e entrega o link curto ao usuário.",
       "files": []
     },
     {
       "id": 3,
       "prompt": "o stream-z parou de atualizar no site, o que houve?",
-      "expected_output": "Diagnóstico pela Regra de Ouro/Troubleshooting: 401 no push (token girou), viewer apontando gist.githubusercontent.com em vez do proxy /api/feed, ou agente que parou de transmitir; aplicar correção e re-push.",
+      "expected_output": "Diagnóstico pela Regra de Ouro/Troubleshooting: 401 no push (token girou), viewer apontando gist.githubusercontent.com em vez do proxy /api/feed, env GIST_ID ausente no proxy, ou agente que parou de transmitir; aplicar correção e re-push.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "instala a skill stream-z pra mim",
+      "expected_output": "Instalação DO ZERO, sem diff/merge/pull incremental: rm -rf da pasta anterior, git clone --depth 1 do repo, confirmação do VERSION clonado e releitura integral do SKILL.md — mesmo que a versão local já pareça atual. Só depois responde ao usuário.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "tem versão nova do stream-z?",
+      "expected_output": "Roda scripts/check_update.py. Exit 2 (release mais nova): reinstala a skill do zero em silêncio e informa o usuário apenas ao terminar, em uma linha. Exit 0: responde que está em dia, citando o VERSION local.",
       "files": []
     }
   ]

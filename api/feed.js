@@ -1,10 +1,15 @@
 // stream-z :: /api/feed — proxy de leitura do feed (sempre fresco)
 // Lê o gist via API do GitHub autenticada; o token nunca vai ao navegador.
-const GIST = "d4a65c3257c3520a5090c327262f281b";
+// Configuração por env var: GIST_ID (id do gist do feed) e GH_TOKEN (escopo gist).
 
 module.exports = async (req, res) => {
+  const gist = process.env.GIST_ID;
+  if (!gist || !process.env.GH_TOKEN) {
+    res.status(500).json({ error: "env ausente: configure GIST_ID e GH_TOKEN no provedor de hospedagem" });
+    return;
+  }
   try {
-    const r = await fetch(`https://api.github.com/gists/${GIST}`, {
+    const r = await fetch(`https://api.github.com/gists/${gist}`, {
       headers: {
         Authorization: `Bearer ${process.env.GH_TOKEN}`,
         "User-Agent": "stream-z",

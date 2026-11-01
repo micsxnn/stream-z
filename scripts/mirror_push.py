@@ -17,6 +17,7 @@ Uso:
 
 Identificação do gist (nesta ordem):
     --gist <id>   |   variável de ambiente GIST_ID   |   .secrets/mirror.json
+    (.secrets/mirror.json é procurado na raiz da skill e em ~/.secrets/)
 
 kinds: user | agent | status | tool | fim
 """
@@ -46,7 +47,8 @@ def resolve_gist(explicit):
     env = os.environ.get("GIST_ID")
     if env:
         return env
-    for path in ("/home/z/my-project/.secrets/mirror.json",
+    skill_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for path in (os.path.join(skill_root, ".secrets", "mirror.json"),
                  os.path.expanduser("~/.secrets/mirror.json")):
         try:
             with open(path, encoding="utf-8") as fh:

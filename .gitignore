@@ -2,5 +2,6 @@
 .env
 *.log
 .secrets/
-.vercel
 .env*
+__pycache__/
+*.pyc

@@ -33,7 +33,7 @@ export async function GET() {
 ## 2. Rode com os tokens no ambiente
 
 ```bash
-set -a && source /home/z/my-project/.secrets/tokens.env && set +a
+set -a && source .secrets/tokens.env && set +a
 export GIST_ID=<id do gist>
 # inicie o dev server do projeto herdando essas variáveis
 ```
@@ -52,7 +52,6 @@ curl -s "https://is.gd/create.php?format=simple&url=https%3A%2F%2Fpreview-SEU-BO
 # → https://is.gd/xxxxxx
 ```
 
-Testado e funcionando (encurtando o próprio stream-z): https://is.gd/vH1UBk.
 Limites: máx. 5 conexões simultâneas; se bater rate limit, espere ~1 minuto.
 
 **Reservas** (se o is.gd falhar, mesma sintaxe): `https://v.gd/create.php?format=simple&url=…`

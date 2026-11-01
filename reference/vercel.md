@@ -24,7 +24,7 @@ Oriente o usuário passo a passo com este texto:
 > 4. Nome `stream-z`, marque SOMENTE o escopo **gist**, depois Generate.
 > 5. Copie o token (começa com `ghp_` — aparece uma vez só) e cole aqui no chat.
 
-Salve os dois em `/home/z/my-project/.secrets/tokens.env` (chmod 600, nunca em git):
+Salve os dois em `.secrets/tokens.env` na sandbox (pasta `700`, arquivos `600`, nunca em git):
 
 ```
 GH_TOKEN=ghp_...
@@ -37,14 +37,15 @@ VERCEL_TOKEN=vcp_...
 mkdir -p stream-z/api
 cp <caminho-da-skill>/assets/viewer.html stream-z/index.html
 cp <caminho-da-skill>/assets/feed.js    stream-z/api/feed.js
-set -a && source /home/z/my-project/.secrets/tokens.env && set +a
+set -a && source .secrets/tokens.env && set +a
 curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" \
   -H "Accept: application/vnd.github+json" https://api.github.com/gists \
   -d '{"public":false,"files":{"feed.json":{"content":"{\"updated\":\"\",\"items\":[]}"}}}'
 ```
 
 Guarde o `"id"` da resposta em `.secrets/mirror.json` como `{"gist_id":"..."}` —
-e cole o mesmo id dentro do `api/feed.js` (constante `GIST`).
+o proxy (`api/feed.js`) lê esse id da **env var `GIST_ID`** (registrada na Vercel no
+passo 4); nada de gist ou token vai hardcoded em código.
 
 ## 4. Suba na Vercel
 
@@ -52,8 +53,9 @@ e cole o mesmo id dentro do `api/feed.js` (constante `GIST`).
 cd stream-z
 # 1º deploy: cria e liga o projeto (nome = nome da pasta)
 npx -y vercel deploy --prod --yes --token "$VERCEL_TOKEN"
-# registra o GH_TOKEN como variável de ambiente do projeto (valor via stdin)
-printf "%s" "$GH_TOKEN" | npx -y vercel env add GH_TOKEN production --token "$VERCEL_TOKEN"
+# registra as env vars do proxy (valores via stdin)
+printf "%s" "$GH_TOKEN"  | npx -y vercel env add GH_TOKEN production --token "$VERCEL_TOKEN"
+printf "%s" "$GIST_ID"   | npx -y vercel env add GIST_ID  production --token "$VERCEL_TOKEN"
 # 2º deploy: a variável passa a valer
 npx -y vercel deploy --prod --yes --token "$VERCEL_TOKEN"
 ```
