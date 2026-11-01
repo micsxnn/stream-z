@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""mirror_push.py — envia uma mensagem para o espelho ao vivo (stream-z).
+"""mirror_push.py — transmite uma fala para o stream-z (feed ao vivo).
 
-O espelho é um feed JSON hospedado num gist SECRETO do GitHub:
+O stream-z é um feed JSON hospedado num gist SECRETO do GitHub:
     feed.json = {"updated": "<iso>", "items": [{"t": "<iso>", "k": "<kind>", "x": "<texto>"}]}
 
-POLÍTICA DE OPERAÇÃO (regra de ouro do espelho):
-  1. TODO texto que o agente falar no chat vai PRIMEIRO para o espelho, verbatim,
+POLÍTICA DE OPERAÇÃO (regra de ouro do stream-z):
+  1. TODO texto que o agente falar no chat vai PRIMEIRO para o stream-z, verbatim,
      e DEPOIS aparece no chat — incluindo narrativas intermediárias entre tool calls.
   2. Ao TERMINAR cada turno:  --kind fim --text "fim"   (desenha o marcador «F I M»).
-  3. Mensagens do USUÁRIO NUNCA vão para o espelho (privacidade).
+  3. Mensagens do USUÁRIO NUNCA vão para o stream-z (privacidade).
 
 Uso:
     export GH_TOKEN=ghp_...                # token GitHub com escopo gist
@@ -83,7 +83,7 @@ def http_json(url, token, payload=None):
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Push de mensagem para o espelho stream-z")
+    ap = argparse.ArgumentParser(description="Push de fala para o stream-z")
     ap.add_argument("--kind", default="agent",
                     choices=["user", "agent", "status", "tool", "fim"])
     ap.add_argument("--text", required=True, help="texto verbatim a transmitir")

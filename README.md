@@ -1,6 +1,6 @@
-# espelho-z :: transmissão ao vivo
+# stream-z :: transmissão ao vivo
 
-Espelho independente da plataforma de chat: um site na Vercel que recebe **toda fala do agente antes de ela aparecer no chat**, para acompanhar em tempo real mesmo quando a plataforma travar.
+stream-z — site independente da plataforma de chat: um site na Vercel que recebe **toda fala do agente antes de ela aparecer no chat**, para acompanhar em tempo real mesmo quando a plataforma travar.
 
 ## Como funciona
 
@@ -14,7 +14,7 @@ Espelho independente da plataforma de chat: um site na Vercel que recebe **toda 
                                                      (poll 2,5 s, sem cache)
 ```
 
-1. O agente empurra cada fala para um **gist secreto** (`feed.json`) com `scripts/mirror_push.py` — sempre **antes** de exibir a mensagem no chat (política do espelho).
+1. O agente empurra cada fala para um **gist secreto** (`feed.json`) com `scripts/mirror_push.py` — sempre **antes** de exibir a mensagem no chat (política do stream-z).
 2. O site (`index.html`) busca `/api/feed` a cada 2,5 s com `cache: no-store`.
 3. A função serverless `api/feed.js` lê o gist **autenticado** com `GH_TOKEN` (env var na Vercel) — assim o CDN do gist nunca serve uma versão velha, e o token nunca chega ao navegador.
 4. O feed trunca no máximo 400 itens / 400 KB (corta do começo).

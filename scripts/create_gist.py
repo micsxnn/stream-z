@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cria o gist secreto que serve de banco de dados do espelho (feed.json)."""
+"""Cria o gist secreto que serve de banco de dados do stream-z (feed.json)."""
 import json
 import os
 import urllib.request
@@ -30,7 +30,7 @@ def main():
         "POST",
         token,
         {
-            "description": "espelho-z :: feed ao vivo",
+            "description": "stream-z :: feed ao vivo",
             "public": False,
             "files": {"feed.json": {"content": json.dumps(feed)}},
         },

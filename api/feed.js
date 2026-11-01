@@ -1,4 +1,4 @@
-// espelho-z :: /api/feed — proxy de leitura do feed (sempre fresco)
+// stream-z :: /api/feed — proxy de leitura do feed (sempre fresco)
 // Lê o gist via API do GitHub autenticada; o token nunca vai ao navegador.
 const GIST = "d4a65c3257c3520a5090c327262f281b";
 
@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     const r = await fetch(`https://api.github.com/gists/${GIST}`, {
       headers: {
         Authorization: `Bearer ${process.env.GH_TOKEN}`,
-        "User-Agent": "espelho-z",
+        "User-Agent": "stream-z",
         Accept: "application/vnd.github+json",
       },
       cache: "no-store",

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>espelho-z :: ao vivo</title>
+<title>stream-z :: ao vivo</title>
 <meta name="description" content="Transmissão ao vivo do agente z — acompanhe em tempo real, mesmo quando a plataforma travar.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0a0d12">
@@ -167,7 +167,7 @@
         <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>
         <path d="M7.7 16.3a6 6 0 0 1 0-8.6M16.3 7.7a6 6 0 0 1 0 8.6M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>
       </svg>
-      espelho-z
+      stream-z
     </span>
     <span class="chip" id="chip"><span class="d"></span><span id="chipTxt">ao vivo</span></span>
     <span class="stats" id="stats">conectando…</span>
@@ -285,8 +285,8 @@ function render(next){
   stats.textContent = "";
   stats.append(b, " · atualizado " + hhmmss(next[next.length-1]?.t));
   const fresh = next.slice(prev).filter(x => (x.k || "agent") !== "fim").length;
-  if(!wasEmpty && !nearBottom()){pillCount += fresh; if(fresh) document.title = "(+" + fresh + ") espelho-z";}
-  else{window.scrollTo({top:document.body.scrollHeight, behavior: wasEmpty ? "auto" : "smooth"}); document.title = "espelho-z :: ao vivo";}
+  if(!wasEmpty && !nearBottom()){pillCount += fresh; if(fresh) document.title = "(+" + fresh + ") stream-z";}
+  else{window.scrollTo({top:document.body.scrollHeight, behavior: wasEmpty ? "auto" : "smooth"}); document.title = "stream-z :: ao vivo";}
   syncPill();
 }
 async function tick(){
