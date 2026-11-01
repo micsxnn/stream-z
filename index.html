@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>espelho-z :: ao vivo</title>
+<meta name="description" content="Transmissão ao vivo do agente z — acompanhe em tempo real, mesmo quando a plataforma travar.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0d12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='2.4' fill='%2343e08d'/%3E%3Cpath d='M7.7 16.3a6 6 0 0 1 0-8.6M16.3 7.7a6 6 0 0 1 0 8.6M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2' fill='none' stroke='%2343e08d' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12; --bg-lift:#0e131a; --line:#1d2733; --line-soft:#151d26;
+    --ink:#dce6f0; --dim:#93a3b1; --faint:#7e8c99;
+    --live:#43e08d; --warn:#ffb454; --bad:#ff6b6b;
+    --k-user:#ffb454; --k-agent:#43e08d; --k-status:#5fb2ff; --k-tool:#c39bff;
+  }
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:#2a3742 transparent}
+  ::-webkit-scrollbar{width:10px}
+  ::-webkit-scrollbar-thumb{background:#24303c;border-radius:5px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-track{background:transparent}
+  body{
+    margin:0;
+    background:
+      radial-gradient(900px 520px at 88% 112%, rgba(67,224,141,.05), transparent 62%),
+      radial-gradient(1100px 600px at 50% -10%, var(--bg-lift), transparent 72%),
+      var(--bg);
+    color:var(--ink);
+    font:15.5px/1.75 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+  }
+  /* materialidade: grão quase invisível por cima do fundo */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.02;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection{background:var(--live);color:#06251a}
+  :focus-visible{outline:2px solid var(--live);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:700px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+  header{position:sticky;top:0;z-index:5;
+    background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(12px)}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--line) 14%,var(--line) 86%,transparent)}
+  .bar{display:flex;align-items:center;gap:13px;height:64px}
+  .mark{display:flex;align-items:center;gap:10px;
+    font:700 17.5px/1 "Space Grotesk",Inter,sans-serif;letter-spacing:-.015em}
+  .mark svg{width:20px;height:20px;stroke:var(--live);flex:none;
+    filter:drop-shadow(0 0 7px rgba(67,224,141,.38))}
+  .chip{display:inline-flex;align-items:center;gap:8px;font:500 11px/1 "Space Grotesk",Inter,sans-serif;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+    border:1px solid color-mix(in srgb,var(--live) 28%,var(--line));border-radius:99px;
+    padding:7px 12px 6px;white-space:nowrap;transition:border-color .3s,color .3s}
+  .chip .d{width:7px;height:7px;border-radius:50%;background:var(--live);flex:none;
+    box-shadow:0 0 0 0 rgba(67,224,141,.45);animation:pulse 1.7s cubic-bezier(.4,0,.6,1) infinite}
+  .chip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 35%,var(--line))}
+  .chip.warn .d{background:var(--warn);box-shadow:none;animation:none}
+  .chip.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
+  .chip.bad .d{background:var(--bad);box-shadow:none;animation:none}
+  @keyframes pulse{70%{box-shadow:0 0 0 8px rgba(67,224,141,0)}100%{box-shadow:0 0 0 0 rgba(67,224,141,0)}}
+  .stats{margin-left:auto;font:400 11.5px/1.4 "JetBrains Mono",monospace;color:var(--faint);
+    font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  .stats b{color:var(--dim);font-weight:400}
+
+  main{padding:34px 0 56px}
+
+  .item{display:grid;grid-template-columns:30px 1fr;gap:15px;padding:18px 0 12px}
+  #feed .item:first-child{padding-top:2px}
+  /* continuação: mesmo emissor em sequência vira um bloco só */
+  .item.cont{padding-top:0}
+  .rail{position:relative}
+  .rail::before{content:"";position:absolute;left:50%;transform:translateX(-50%);
+    top:-14px;bottom:-6px;width:1.5px;border-radius:2px;
+    background:color-mix(in srgb,var(--dim) 62%,transparent)}
+  /* marcador de fim de turno — ocupa o lugar do antigo footer */
+  .endmark{display:flex;align-items:center;gap:16px;padding:14px 0 20px}
+  .endmark .ln{flex:1;height:1px}
+  .endmark .ln:first-child{background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--live) 30%,var(--line)))}
+  .endmark .ln:last-child{background:linear-gradient(90deg,color-mix(in srgb,var(--live) 30%,var(--line)),transparent)}
+  .endmark .w{font:500 11px/1 "Space Grotesk",Inter,sans-serif;letter-spacing:.42em;
+    text-transform:uppercase;color:var(--faint);padding-left:.42em;white-space:nowrap}
+  .mono{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;
+    font:700 13px/1 "Space Grotesk",Inter,sans-serif;margin-top:2px}
+  .k-user .mono{color:var(--k-user);border:1.5px solid color-mix(in srgb,var(--k-user) 55%,transparent);
+    background:color-mix(in srgb,var(--k-user) 9%,transparent)}
+  .k-agent .mono{color:var(--k-agent);border:1.5px solid color-mix(in srgb,var(--k-agent) 55%,transparent);
+    background:color-mix(in srgb,var(--k-agent) 9%,transparent)}
+  .k-status .mono{color:var(--k-status);border:1.5px solid color-mix(in srgb,var(--k-status) 55%,transparent);
+    background:color-mix(in srgb,var(--k-status) 9%,transparent)}
+  .k-tool .mono{color:var(--k-tool);border:1.5px solid color-mix(in srgb,var(--k-tool) 55%,transparent);
+    background:color-mix(in srgb,var(--k-tool) 9%,transparent)}
+  .head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+  .name{font:700 11.5px/1 "Space Grotesk",Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+  .k-user .name{color:var(--k-user)} .k-agent .name{color:var(--k-agent)}
+  .k-status .name{color:var(--k-status)} .k-tool .name{color:var(--k-tool)}
+  .when{font:400 11px/1 "JetBrains Mono",monospace;color:var(--faint);font-variant-numeric:tabular-nums}
+  .txt{white-space:pre-wrap;word-break:break-word;max-width:64ch;overflow-wrap:anywhere;text-wrap:pretty}
+  .txt a{color:var(--k-status);text-decoration:underline;text-underline-offset:3px;
+    text-decoration-color:color-mix(in srgb,var(--k-status) 35%,transparent);
+    transition:text-decoration-color .2s,color .2s}
+  .txt a:hover{color:color-mix(in srgb,var(--k-status) 78%,white);
+    text-decoration-color:currentColor}
+  .arrive{animation:arrive .55s cubic-bezier(.16,1,.3,1) both}
+  @keyframes arrive{from{opacity:0;transform:translateY(11px);filter:blur(8px)}
+    to{opacity:1;transform:none;filter:none}}
+
+  .state{border:1px solid var(--line);border-radius:14px;text-align:center;
+    padding:48px 28px;color:var(--dim);margin-top:14vh;background:color-mix(in srgb,var(--bg-lift) 55%,transparent)}
+  .state svg{width:32px;height:32px;stroke:var(--faint);display:block;margin:0 auto 16px;
+    animation:seek 2.6s ease-in-out infinite}
+  @keyframes seek{0%,100%{opacity:.4}50%{opacity:1}}
+  .state p{margin:0;font-size:14.5px}
+  .state .hint{color:var(--faint);font-size:12.5px;margin-top:7px}
+
+  .skel{max-width:520px;margin-top:9vh}
+  .s-row{display:grid;grid-template-columns:30px 1fr;gap:15px;margin-bottom:30px}
+  .s-row .c{width:30px;height:30px;border-radius:50%;background:var(--line-soft);
+    animation:breathe 1.6s ease-in-out infinite}
+  .s-row .l{height:13px;border-radius:6.5px;background:var(--line-soft);margin-top:5px;
+    animation:breathe 1.6s ease-in-out infinite}
+  .s-row:nth-child(2) .l{width:78%;animation-delay:.14s}
+  .s-row:nth-child(3) .l{width:52%;animation-delay:.28s}
+  @keyframes breathe{50%{opacity:.38}}
+
+  .banner{display:none;margin-bottom:26px;border:1px solid color-mix(in srgb,var(--bad) 35%,transparent);
+    border-radius:11px;padding:12px 16px;font-size:13.5px;color:var(--dim);
+    background:color-mix(in srgb,var(--bad) 7%,transparent)}
+  .banner.on{display:flex;gap:10px;align-items:baseline}
+  .banner a{color:var(--bad);white-space:nowrap;text-underline-offset:3px}
+
+  .pill{position:fixed;bottom:28px;left:50%;transform:translate(-50%,14px);opacity:0;
+    pointer-events:none;transition:.3s cubic-bezier(.16,1,.3,1);z-index:6;
+    background:var(--live);color:#06251a;border:none;border-radius:99px;
+    font:600 13px/1 "Space Grotesk",Inter,sans-serif;letter-spacing:.01em;
+    padding:12px 19px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.35)}
+  .pill.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .pill:hover{filter:brightness(1.07)}
+  .pill:active{transform:translate(-50%,1px)}
+
+  @media (max-width:600px){
+    .wrap{padding:0 16px}
+    main{padding:26px 0 64px}
+    .item{grid-template-columns:26px 1fr;gap:12px;padding:14px 0 10px}
+    .endmark{padding:10px 0 16px}
+    .mono{width:26px;height:26px;font-size:11.5px}
+    .head{flex-wrap:wrap;gap:8px}
+    .stats{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .arrive,.state svg,.chip .d,.s-row .c,.s-row .l{animation:none}
+    .pill{transition:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <span class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>
+        <path d="M7.7 16.3a6 6 0 0 1 0-8.6M16.3 7.7a6 6 0 0 1 0 8.6M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>
+      </svg>
+      espelho-z
+    </span>
+    <span class="chip" id="chip"><span class="d"></span><span id="chipTxt">ao vivo</span></span>
+    <span class="stats" id="stats">conectando…</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="banner" role="alert">
+    <span>sem sinal — o feed não responde. tentando de novo automaticamente.</span>
+    <a href="#" id="reload">recarregar agora</a>
+  </div>
+  <div id="feed">
+    <div class="skel" id="skel">
+      <div class="s-row"><span class="c"></span><span class="l"></span></div>
+      <div class="s-row"><span class="c"></span><span class="l"></span></div>
+      <div class="s-row"><span class="c"></span><span class="l"></span></div>
+    </div>
+    <div class="state" id="empty" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>
+        <path d="M7.7 16.3a6 6 0 0 1 0-8.6M16.3 7.7a6 6 0 0 1 0 8.6"/>
+      </svg>
+      <p>aguardando transmissão…</p>
+      <p class="hint">assim que o agente falar, aparece aqui em segundos</p>
+    </div>
+  </div>
+</main>
+
+<button class="pill" id="pill" type="button">ver novas mensagens ↓</button>
+
+<script>
+const RAW = "/api/feed";
+const WHO = {user:"você", agent:"z", status:"status", tool:"ferramenta"};
+const INI = {user:"v", agent:"z", status:"s", tool:"f"};
+const feedEl = document.getElementById("feed");
+const chip = document.getElementById("chip"), chipTxt = document.getElementById("chipTxt");
+const stats = document.getElementById("stats");
+const empty = document.getElementById("empty"), skel = document.getElementById("skel");
+const banner = document.getElementById("banner"), pill = document.getElementById("pill");
+let shown = 0, fails = 0, pillCount = 0;
+
+document.getElementById("reload").addEventListener("click", e => {e.preventDefault(); location.reload();});
+pill.addEventListener("click", () => {window.scrollTo({top:document.body.scrollHeight, behavior:"smooth"}); pillCount = 0; syncPill();});
+window.addEventListener("scroll", () => {if(nearBottom()){pillCount = 0; syncPill();} }, {passive:true});
+
+function nearBottom(){return window.innerHeight + window.scrollY >= document.body.scrollHeight - 140;}
+function syncPill(){
+  pill.textContent = "ver +" + pillCount + (pillCount === 1 ? " mensagem" : " mensagens") + " ↓";
+  pill.classList.toggle("on", pillCount > 0 && !nearBottom());
+}
+function hhmmss(iso){
+  try{return new Date(iso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+  catch(e){return iso;}
+}
+function setChip(mode){
+  chip.className = "chip" + (mode==="warn" ? " warn" : mode==="bad" ? " bad" : "");
+  chipTxt.textContent = mode==="warn" ? "reconectando" : mode==="bad" ? "sem sinal" : "ao vivo";
+}
+function entry(it, animate, cont){
+  const kind = it.k || "agent";
+  const div = document.createElement("div");
+  div.className = "item k-" + kind + (cont ? " cont" : "") + (animate ? " arrive" : "");
+  const rail = document.createElement("span");
+  rail.setAttribute("aria-hidden","true");
+  if(cont){ rail.className = "rail"; }
+  else{ rail.className = "mono"; rail.textContent = INI[kind] || "z"; }
+  const box = document.createElement("div");
+  const txt = document.createElement("div"); txt.className = "txt";
+  const parts = String(it.x || "").split(/(https?:\/\/[^\s)]+)/g);
+  for(const p of parts){
+    if(/^https?:\/\//.test(p)){const a = document.createElement("a"); a.href = p; a.target = "_blank"; a.rel = "noopener"; a.textContent = p; txt.append(a);}
+    else txt.append(p);
+  }
+  if(!cont){
+    const head = document.createElement("div"); head.className = "head";
+    const name = document.createElement("span"); name.className = "name"; name.textContent = WHO[kind] || kind;
+    const when = document.createElement("span"); when.className = "when";
+    when.textContent = hhmmss(it.t);
+    when.title = new Date(it.t).toLocaleString("pt-BR");
+    head.append(name, when);
+    box.append(head);
+  }
+  box.append(txt); div.append(rail, box);
+  return div;
+}
+function endmark(it, animate){
+  const div = document.createElement("div");
+  div.className = "endmark" + (animate ? " arrive" : "");
+  div.setAttribute("role","separator");
+  const l1 = document.createElement("span"); l1.className = "ln";
+  const w = document.createElement("span"); w.className = "w"; w.textContent = "fim";
+  w.title = "turno encerrado · " + (it && it.t ? new Date(it.t).toLocaleString("pt-BR") : "");
+  const l2 = document.createElement("span"); l2.className = "ln";
+  div.append(l1, w, l2);
+  return div;
+}
+function render(next){
+  const prev = shown;
+  if(next.length === prev){
+    const m = next.filter(x => (x.k || "agent") !== "fim").length;
+    stats.textContent = m + (m === 1 ? " mensagem" : " mensagens") + " · atualizado " + hhmmss(next[next.length-1]?.t);
+    return;
+  }
+  const wasEmpty = prev === 0;
+  if(wasEmpty) feedEl.textContent = "";
+  for(let i = prev; i < next.length; i++){
+    const it = next[i];
+    if((it.k || "agent") === "fim"){ feedEl.append(endmark(it, !wasEmpty)); continue; }
+    const cont = i > 0 && (next[i-1].k || "agent") === (it.k || "agent");
+    feedEl.append(entry(it, !wasEmpty, cont));
+  }
+  shown = next.length;
+  const msgs = next.filter(x => (x.k || "agent") !== "fim").length;
+  const b = document.createElement("b"); b.textContent = msgs + (msgs === 1 ? " mensagem" : " mensagens");
+  stats.textContent = "";
+  stats.append(b, " · atualizado " + hhmmss(next[next.length-1]?.t));
+  const fresh = next.slice(prev).filter(x => (x.k || "agent") !== "fim").length;
+  if(!wasEmpty && !nearBottom()){pillCount += fresh; if(fresh) document.title = "(+" + fresh + ") espelho-z";}
+  else{window.scrollTo({top:document.body.scrollHeight, behavior: wasEmpty ? "auto" : "smooth"}); document.title = "espelho-z :: ao vivo";}
+  syncPill();
+}
+async function tick(){
+  try{
+    const r = await fetch(RAW, {cache:"no-store"});
+    if(!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    fails = 0; banner.classList.remove("on"); setChip("ao vivo");
+    skel.hidden = true;
+    const items = d.items || [];
+    empty.hidden = items.length > 0;
+    render(items);
+  }catch(e){
+    skel.hidden = true;
+    if(++fails >= 3){setChip("bad"); banner.classList.add("on");}
+    else setChip("warn");
+  }
+}
+tick(); setInterval(tick, 2500);
+</script>
+</body>
+</html>
